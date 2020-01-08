@@ -4,9 +4,9 @@ import { validationResult } from 'express-validator';
 import { logger } from '../logger';
 
 export function validate(target: any, propKey: string, descriptor: PropertyDescriptor) {
-	let originalMethod = descriptor.value;
+	const originalMethod = descriptor.value;
 
-	descriptor.value = async function(request: Request, response: Response) {
+	descriptor.value = async (request: Request, response: Response) => {
 		const validation = validationResult(request);
 		if (validation.isEmpty()) {
 			logger.info(`Calling method ${propKey}. Validation is successful.`);
@@ -17,5 +17,5 @@ export function validate(target: any, propKey: string, descriptor: PropertyDescr
 
 			response.status(400).json({error: errors});
 		}
-	}
+	};
 }

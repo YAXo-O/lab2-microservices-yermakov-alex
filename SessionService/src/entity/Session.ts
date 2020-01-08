@@ -2,14 +2,14 @@ import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from 'typeor
 
 @Entity()
 export class Session {
-	@PrimaryGeneratedColumn("uuid")
+	@PrimaryGeneratedColumn('uuid')
 	public id: string;
 
-	@Column("uuid")
+	@Column('uuid')
 	public adminId: string;
 
 	@CreateDateColumn({
-		type: 'timestamp'
+		type: 'timestamp',
 	})
 	public dateCreated: Date;
 
@@ -17,7 +17,7 @@ export class Session {
 	public title: string;
 
 	@Column({
-		nullable: true
+		nullable: true,
 	})
 	public description: string;
 }

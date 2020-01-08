@@ -12,12 +12,12 @@ import { logger } from '../logger';
 
 export default class SessionController {
 	@validate
-	static async create(request: BaseRequest<CreateParams>, response: Response) {
+	public static async create(request: BaseRequest<CreateParams>, response: Response) {
 		const body = request.body;
 		const session = {
 			adminId: body.adminId,
+			description: body.description,
 			title: body.title,
-			description: body.description
 		};
 
 		logger.info('Creating new session with parameters: ', session);
@@ -33,13 +33,13 @@ export default class SessionController {
 			logger.info('Unable to create new session: ', error);
 
 			response.status(500).json({
-				reason: error
+				reason: error,
 			});
 		}
 	}
 
 	@validate
-	static async get(request: BaseRequest<{}, GetParams>, response: Response) {
+	public static async get(request: BaseRequest<{}, GetParams>, response: Response) {
 		logger.info('Retrieving session(s)');
 		try {
 			const repository = getRepository(Session);
@@ -57,16 +57,16 @@ export default class SessionController {
 
 				const [items, totalCount] = await repository.findAndCount({
 					order: {
-						dateCreated: "ASC",
+						dateCreated: 'ASC',
 					},
 					skip: offset,
 					take: size,
 				});
 				const pageResponse: PageResponse<Session> = {
-					page: page,
-					totalCount: totalCount,
+					items,
+					page,
+					totalCount,
 					totalPages: Math.ceil(totalCount / size),
-					items
 				};
 
 				logger.info('Retrieved sessions page: ', items);
@@ -78,13 +78,13 @@ export default class SessionController {
 			logger.info('Failed to retrieve sessions. Reason: ', error);
 
 			response.status(500).json({
-				reason: error
+				reason: error,
 			});
 		}
 	}
 
 	@validate
-	static async update(request: BaseRequest<UpdateParams>, response: Response) {
+	public static async update(request: BaseRequest<UpdateParams>, response: Response) {
 		const params = request.body;
 
 		logger.info(`Updating session with id ${params.id}`);
@@ -119,13 +119,13 @@ export default class SessionController {
 			logger.info(`Unable to update session with id ${params.id}: `, error);
 
 			response.status(500).json({
-				reason: error
+				reason: error,
 			});
 		}
 	}
 
 	@validate
-	static async delete(request: BaseRequest<{}, DeleteParams>, response: Response) {
+	public static async delete(request: BaseRequest<{}, DeleteParams>, response: Response) {
 		const id = request.query.id;
 
 		logger.info(`Deleting session with id ${id}`);
@@ -141,7 +141,7 @@ export default class SessionController {
 			logger.info(`Unable to delete session with id ${id}: `, error);
 
 			response.status(500).json({
-				reason: error
+				reason: error,
 			});
 		}
 	}
