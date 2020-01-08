@@ -4,7 +4,7 @@ import config from '../ormconfig';
 import { logger } from './logger';
 import Server, { Address } from './server';
 
-const port: number = +process.env.PORT || 8000;
+const port: number = +process.env.PORT || 8001;
 
 createConnection(config as any)
 	.then(async (connection) => {
