@@ -1,12 +1,12 @@
 import SessionController from '@controller/SessionController';
 import { Session } from '@entities/Session';
 import SessionValidation from '@validation/SessionValidation';
+import { Response } from 'jest-express/lib/response';
 import { resolve } from 'path';
 import { createConnection, getConnection, getRepository } from 'typeorm';
 import GetParams from '../src/interfaces/GetParams';
 import { logger } from '../src/logger';
 import { executeValidation, prepareDataMocks, url } from './utils';
-import { Response } from 'jest-express/lib/response';
 
 async function callEndpoint(query: object): Promise<Response> {
 	const { request, response } = prepareDataMocks(url, {}, query, 'GET');
@@ -22,13 +22,13 @@ logger.silent = true;
 describe('Get Sessions tests', () => {
 	beforeAll(() => {
 		return createConnection({
+			dropSchema: true,
+			entities: [resolve(__dirname, '../src/entity/**/*.ts')],
+			logging: false,
+			schema: 'get',
+			synchronize: true,
 			type: 'postgres',
 			url: process.env.TEST_DATABASE_URL || 'postgres://test-runner:123456@localhost:5432/billing-sessions-test',
-			schema: 'get',
-			entities: [resolve(__dirname, '../src/entity/**/*.ts')],
-			dropSchema: true,
-			synchronize: true,
-			logging: false,
 		});
 	});
 
@@ -38,7 +38,7 @@ describe('Get Sessions tests', () => {
 
 	test('Valid input #1', async () => {
 		const query: GetParams = {
-			page: 0
+			page: 0,
 		};
 
 		const response = await callEndpoint(query);
@@ -63,7 +63,7 @@ describe('Get Sessions tests', () => {
 		});
 
 		const query: GetParams = {
-			id: item.id
+			id: item.id,
 		};
 
 		const response = await callEndpoint(query);
@@ -72,9 +72,9 @@ describe('Get Sessions tests', () => {
 		expect(response.json).toBeCalledWith(item);
 	});
 
-	test('Non-existing item', async() => {
+	test('Non-existing item', async () => {
 		const query: GetParams = {
-			id: 'e77ab26b-4187-4710-a409-05ee81edb11c'
+			id: 'e77ab26b-4187-4710-a409-05ee81edb11c',
 		};
 
 		const response = await callEndpoint(query);
@@ -85,7 +85,7 @@ describe('Get Sessions tests', () => {
 
 	test('Invalid input #1', async () => {
 		const query = {
-			page: 'alpha'
+			page: 'alpha',
 		};
 
 		const response = await callEndpoint(query);

@@ -14,7 +14,7 @@ describe('Repository failure session tests', () => {
 	test('Create test', async () => {
 		const body: CreateParams = {
 			adminId: '177bd7ca-e4cf-48c3-80f7-39f1a1465ea5',
-			title: 'Repository failure create session test'
+			title: 'Repository failure create session test',
 		};
 		const { request, response } = prepareDataMocks(url, body, {}, 'POST');
 		await executeValidation(request, response, SessionValidation.create());
@@ -25,7 +25,7 @@ describe('Repository failure session tests', () => {
 
 	test('Get test', async () => {
 		const query: GetParams = {
-			id: '177bd7ca-e4cf-48c3-80f7-39f1a1465ea5'
+			id: '177bd7ca-e4cf-48c3-80f7-39f1a1465ea5',
 		};
 		const { request, response } = prepareDataMocks(url, {}, query, 'GET');
 		await executeValidation(request, response, SessionValidation.get());
@@ -36,8 +36,8 @@ describe('Repository failure session tests', () => {
 
 	test('Update test', async () => {
 		const body: UpdateParams = {
-			id: '177bd7ca-e4cf-48c3-80f7-39f1a1465ea5',
 			adminId: '177bd7ca-e4cf-48c3-80f7-39f1a1465ea5',
+			id: '177bd7ca-e4cf-48c3-80f7-39f1a1465ea5',
 		};
 		const { request, response } = prepareDataMocks(url, body, {}, 'PATCH');
 		await executeValidation(request, response, SessionValidation.update());
@@ -48,7 +48,7 @@ describe('Repository failure session tests', () => {
 
 	test('Delete test', async () => {
 		const query: DeleteParams = {
-			id: '177bd7ca-e4cf-48c3-80f7-39f1a1465ea5'
+			id: '177bd7ca-e4cf-48c3-80f7-39f1a1465ea5',
 		};
 		const { request, response } = prepareDataMocks(url, {}, query, 'DELETE');
 		await executeValidation(request, response, SessionValidation.delete());

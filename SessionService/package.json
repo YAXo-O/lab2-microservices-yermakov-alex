@@ -1,10 +1,11 @@
 {
-   "name": "Lab01",
-   "version": "0.0.1",
-   "description": "Awesome project developed with TypeORM.",
+   "name": "SessionService",
+   "version": "1.0.0",
+   "description": "Session service RESTfull API",
    "devDependencies": {
       "@types/jest": "^24.0.23",
       "@types/node": "^8.0.29",
+      "express-swagger-generator": "^1.1.17",
       "express-validator": "^6.3.1",
       "jest": "^24.9.0",
       "jest-express": "^1.10.1",
@@ -26,7 +27,6 @@
    },
    "scripts": {
       "start": "npm run dev",
-      "install": "npm install",
       "dev": "ts-node -r tsconfig-paths/register src/index.ts",
       "lint": "tslint -c tslint.json 'src/**/*.ts'",
       "test": "jest --coverage"
