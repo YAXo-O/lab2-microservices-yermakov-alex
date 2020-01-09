@@ -13,9 +13,11 @@
       "sourceMap": true,
       "baseUrl": "./src",
       "paths": {
-         "@controller/*": ["controllers/*"],
-         "@entities/*": ["entity/*"],
-         "@routes/*": ["routes/*"]
+		"@controller/*": ["controllers/*"],
+		"@validation/*": ["validation/*"],
+		"@decorators/*": ["decorators/*"],
+		"@entities/*": ["entity/*"],
+		"@routes/*": ["routes/*"]
       }
    }
 }

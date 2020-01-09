@@ -13,7 +13,7 @@ createConnection(config as any)
 
 		server.serve(port)
 		  .then((address: Address) => {
-				logger.info(`Session service has been launched at ${address.address}:${address.port}`);
+				logger.info(`Event service has been launched at ${address.address}:${address.port}`);
 			})
 		  .catch((error: string) => {
 				logger.error(error);
