@@ -40,7 +40,6 @@ export default class SessionController {
 
 	@validate
 	public static async get(request: BaseRequest<{}, GetParams>, response: Response) {
-		logger.info('Retrieving session(s)');
 		try {
 			const repository = getRepository(Session);
 
@@ -49,7 +48,7 @@ export default class SessionController {
 
 				logger.info('Retrieved session by id: ', item);
 
-				response.status(200).json(item);
+				response.status(200).json(item || {});
 			} else {
 				const page = +request.query.page || 0;
 				const size = 20; // 20 items per page

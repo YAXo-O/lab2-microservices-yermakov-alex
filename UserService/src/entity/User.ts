@@ -5,7 +5,10 @@ export class User {
 	@PrimaryGeneratedColumn('uuid')
 	public id: string;
 
-	@Column('text')
+	@Column({
+		type: 'timestamp',
+		unique: true,
+	})
 	public login: string;
 
 	@Column('text')

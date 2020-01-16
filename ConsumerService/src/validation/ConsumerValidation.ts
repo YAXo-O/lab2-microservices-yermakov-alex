@@ -13,6 +13,7 @@ export default class ConsumerValidation {
 		return [
 			query('page', 'Page is optional integer').optional().isInt(),
 			query('id', 'Id is optional uuid v4 string').optional().isUUID(4),
+			query('sessionId', 'Session id is optional uuid v4 string').optional().isUUID(4),
 		];
 	}
 
@@ -28,6 +29,7 @@ export default class ConsumerValidation {
 	public static delete() {
 		return [
 			query('id', 'Session id is required and should be uuid v4 string').exists().isUUID(4),
+			query('bySession', 'By session should be boolean').optional().isBoolean(),
 		];
 	}
 }

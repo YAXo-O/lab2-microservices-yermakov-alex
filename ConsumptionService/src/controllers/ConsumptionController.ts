@@ -50,7 +50,7 @@ export default class ConsumptionController {
 
 				logger.info('Retrieved consumption by id: ', item);
 
-				response.status(200).json(item);
+				response.status(200).json(item || null);
 			} else {
 				const page = +request.query.page || 0;
 				const size = 20; // 20 items per page
@@ -131,14 +131,15 @@ export default class ConsumptionController {
 	@validate
 	public static async delete(request: BaseRequest<{}, DeleteParams>, response: Response) {
 		const id = request.query.id;
+		const byEvent = request.query.byEvent;
 
-		logger.info(`Deleting consumption with id ${id}`);
+		logger.info(`Deleting consumption with ${byEvent ? 'event id' : 'id'} ${id}`);
 
 		try {
 			const repository = getRepository(Consumption);
-			await repository.delete(id);
+			await repository.delete(byEvent ? {eventId: id} : id);
 
-			logger.info(`Consumption with id ${id} has been deleted`);
+			logger.info(`Consumption(s) have been deleted`);
 
 			response.status(200).send();
 		} catch (error) {

@@ -30,6 +30,7 @@ export default class ConsumptionValidation {
 	public static delete() {
 		return [
 			query('id', 'Session id is required and should be uuid v4 string').exists().isUUID(4),
+			query('byEvent', 'By event is boolean').optional().isBoolean(),
 		];
 	}
 }

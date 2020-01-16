@@ -16,5 +16,5 @@ export default {
    ],
    synchronize: true,
    type: 'postgres',
-   url: process.env.DATABASE_URL || 'postgres://dips:123456@localhost:5432/billing-sessions',
+   url: process.env.DATABASE_URL || 'postgres://dips:123456@localhost:5432/billing-consumers',
 };

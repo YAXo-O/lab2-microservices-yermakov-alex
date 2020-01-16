@@ -48,7 +48,7 @@ export default class EventController {
 
 				logger.info('Retrieved event by id: ', item);
 
-				response.status(200).json(item);
+				response.status(200).json(item || null);
 			} else {
 				const page = +request.query.page || 0;
 				const size = 20; // 20 items per page
@@ -60,6 +60,9 @@ export default class EventController {
 					},
 					skip: offset,
 					take: size,
+					where: request.query.sessionId ? {
+						sessionId: request.query.sessionId,
+					} : undefined,
 				});
 				const pageResponse: PageResponse<Event> = {
 					items,
@@ -123,14 +126,15 @@ export default class EventController {
 	@validate
 	public static async delete(request: BaseRequest<{}, DeleteParams>, response: Response) {
 		const id = request.query.id;
+		const bySession = request.query.bySession;
 
-		logger.info(`Deleting event with id ${id}`);
+		logger.info(`Deleting event with ${bySession ? 'session id' : 'id'} ${id}`);
 
 		try {
 			const repository = getRepository(Event);
-			await repository.delete(id);
+			await repository.delete(bySession ? {sessionId: id} : id);
 
-			logger.info(`Event with id ${id} has been deleted`);
+			logger.info(`Event(s) have been deleted`);
 
 			response.status(200).send();
 		} catch (error) {

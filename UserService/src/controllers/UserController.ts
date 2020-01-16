@@ -48,7 +48,7 @@ export default class UserController {
 
 				logger.info('Retrieved user by id: ', item);
 
-				response.status(200).json(item);
+				response.status(200).json(item || {});
 			} else {
 				const page = +request.query.page || 0;
 				const size = 20; // 20 items per page

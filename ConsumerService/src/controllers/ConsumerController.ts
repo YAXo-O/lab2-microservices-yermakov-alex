@@ -49,7 +49,7 @@ export default class ConsumerController {
 
 				logger.info('Retrieved consumer by id: ', item);
 
-				response.status(200).json(item);
+				response.status(200).json(item || null);
 			} else {
 				const page = +request.query.page || 0;
 				const size = 20; // 20 items per page
@@ -61,6 +61,9 @@ export default class ConsumerController {
 					},
 					skip: offset,
 					take: size,
+					where: request.query.sessionId ? {
+						sessionId: request.query.sessionId,
+					} : undefined,
 				});
 				const pageResponse: PageResponse<Consumer> = {
 					items,
@@ -127,14 +130,15 @@ export default class ConsumerController {
 	@validate
 	public static async delete(request: BaseRequest<{}, DeleteParams>, response: Response) {
 		const id = request.query.id;
+		const bySession = request.query.bySession;
 
-		logger.info(`Deleting consumer with id ${id}`);
+		logger.info(`Deleting consumer with ${bySession ? 'session id' : 'id'} ${id}`);
 
 		try {
 			const repository = getRepository(Consumer);
-			await repository.delete(id);
+			await repository.delete(bySession ? {sessionId: id} : id);
 
-			logger.info(`Consumer with id ${id} has been deleted`);
+			logger.info(`Consumer(s) have been deleted`);
 
 			response.status(200).send();
 		} catch (error) {
