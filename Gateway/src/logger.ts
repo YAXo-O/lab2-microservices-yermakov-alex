@@ -15,4 +15,5 @@
 
 export const logger = {
 		info: () => undefined,
+		silent: false,
 };
