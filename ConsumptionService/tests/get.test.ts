@@ -82,7 +82,7 @@ describe('Get Sessions tests', () => {
 		const response = await callEndpoint(query);
 
 		expect(response.status).toBeCalledWith(200);
-		expect(response.json).toBeCalledWith(undefined);
+		expect(response.json).toBeCalledWith(null);
 	});
 
 	test('Invalid input #1', async () => {
