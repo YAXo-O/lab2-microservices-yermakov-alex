@@ -1,5 +1,4 @@
 import { validate } from '@decorators/index';
-import { hash } from 'bcrypt';
 import {Response} from 'express';
 import BaseRequest from '../interfaces/BaseRequest';
 import RegisterParams from '../interfaces/UserParams/RegisterParams';
@@ -10,12 +9,12 @@ export default class UserController {
 	@validate
 	public static async register(request: BaseRequest<RegisterParams>, response: Response) {
 		const body = request.body;
-		const saltRounds = 10;
+		// const saltRounds = 10;
 
 		try {
 			logger.info('Hashing given password');
-			const pwdHash = await hash(body.password, saltRounds);
-			const result = await UserService.CreateUser(body.login, pwdHash);
+			// const pwdHash = await hash(body.password, saltRounds);
+			const result = await UserService.CreateUser(body.login, 'password hash');
 
 			logger.info('User has been successfully created: ', result);
 
