@@ -26,7 +26,7 @@ export default class SessionController {
 		const query = request.query;
 
 		try {
-			const result = await ConsumerService.GetConsumer(query.id, query.page);
+			const result = await ConsumerService.GetConsumer(query.id, query.page, query.sessionId);
 
 			response.status(200).json(result);
 		} catch (e) {

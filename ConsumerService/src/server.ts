@@ -1,6 +1,7 @@
 import * as bodyParser from 'body-parser';
 import * as express from 'express';
 import { Server as HttpServer } from 'http';
+import fetch from 'node-fetch';
 
 import router from '@routes/ConsumerRoutes';
 import options from '../swagger';
@@ -16,6 +17,8 @@ export default class Server {
 	private server?: HttpServer = undefined;
 	private readonly swagger;
 	private readonly baseUrl: string = '/api/private/v1/consumer';
+	private readonly pollQueueInterval: number = 180000;
+	private readonly queueHost: string = 'http://localhost:8005/api/private/v1/queue';
 
 	constructor() {
 		this.swagger = require('express-swagger-generator')(this.app);
@@ -43,9 +46,18 @@ export default class Server {
 					reject(new Error('Unable to launch server!'));
 				})
 				.listen(port, () => {
+					this.pollQueue();
 					resolve(this.server.address());
 			});
 		});
+	}
+
+	private pollQueue() {
+		logger.info('Polling queue');
+		fetch(`${this.queueHost}?host=localhost:8001`, {
+			method: 'GET',
+		});
+		setTimeout(this.pollQueue.bind(this), this.pollQueueInterval);
 	}
 
 	private applyMiddleware() {

@@ -27,7 +27,7 @@ export default class ConsumptionController {
 		const query = request.query;
 
 		try {
-			const result = await ConsumptionService.GetConsumption(query.id, query.page);
+			const result = await ConsumptionService.GetConsumption(query.id, query.page, query.eventId);
 
 			response.status(200).json(result);
 		} catch (e) {

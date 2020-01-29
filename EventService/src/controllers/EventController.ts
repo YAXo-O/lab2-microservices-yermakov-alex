@@ -7,6 +7,7 @@ import CreateParams from '../interfaces/CreateParams';
 import DeleteParams from '../interfaces/DeleteParams';
 import GetParams from '../interfaces/GetParams';
 import PageResponse from '../interfaces/PageResponse';
+import RestoreParams from '../interfaces/RestoreParams';
 import UpdateParams from '../interfaces/UpdateParams';
 import { logger } from '../logger';
 
@@ -17,6 +18,7 @@ export default class EventController {
 		const session = {
 			investorId: body.investorId,
 			sessionId: body.sessionId,
+			title: body.title,
 		};
 
 		logger.info('Creating new event with parameters: ', session);
@@ -93,6 +95,9 @@ export default class EventController {
 
 		try {
 			const values: any = {};
+			if (params.title) {
+				values.title = params.title;
+			}
 			if (params.sessionId) {
 				values.sessionId = params.sessionId;
 			}
@@ -142,6 +147,33 @@ export default class EventController {
 
 			response.status(500).json({
 				reason: error,
+			});
+		}
+	}
+
+	@validate
+	public static async restore(request: BaseRequest<RestoreParams>, response: Response) {
+		const body = request.body;
+		logger.info(`Trying to restore entity: `, body);
+
+		try {
+			const repository = getRepository(Event);
+			await repository.save({
+				dateCreated: new Date(body.dateCreated),
+				id: body.id,
+				investorId: body.investorId,
+				sessionId: body.sessionId,
+				title: body.title,
+			});
+
+			logger.info('Successfully restored entity');
+
+			response.status(200).json({});
+		} catch (e) {
+			logger.info('Unable to restore entity: ', e);
+
+			response.status(500).json({
+				reason: e,
 			});
 		}
 	}

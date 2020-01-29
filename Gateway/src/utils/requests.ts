@@ -22,7 +22,7 @@ export function post<T>(url: string, body: object): Promise<T> {
 			if (resp.ok) {
 				logger.info(`Post request to ${url} has been successful; Parsing json`);
 
-				return resp.json();
+				return resp.json && resp.json() || null;
 			} else {
 				logger.info(`Post request to ${url} return error ${resp.statusText}`);
 				throw {
@@ -42,6 +42,12 @@ export function get<T>(url: string, query: object): Promise<T> {
 	return fetch(formatUrl(url, query), {
 		method: 'GET',
 	})
+		.catch(e => {
+			throw {
+				reason: e,
+				unreachable: true,
+			};
+		})
 		.then((resp) => {
 			if (resp.ok) {
 				logger.info(`Get request to ${url} has been successful. Parsing json`);
@@ -87,11 +93,38 @@ export function remove(url: string, query: object): Promise<void> {
 	return fetch(formatUrl(url, query), {
 		method: 'DELETE',
 	})
+		.catch(e => {
+			throw {
+				reason: e,
+				unreachable: true,
+			};
+		})
 		.then((resp) => {
 			if (resp.ok) {
 				logger.info(`Delete request to ${url} has been successful. Parsing json`);
 			} else {
 				logger.info(`Delete request to ${url} return error ${resp.statusText}`);
+				throw {
+					reason: resp.statusText,
+				};
+			}
+		});
+	}
+
+export function restore(url: string, body: object): Promise<void> {
+	logger.info(`Put request to ${url} with `, body);
+	return fetch(url, {
+		body: JSON.stringify(body),
+		headers: { 'Content-Type': 'application/json' },
+		method: 'PUT',
+	})
+		.then((resp) => {
+			if (resp.ok) {
+				logger.info(`Put request to ${url} has been successful; Parsing json`);
+
+				return;
+			} else {
+				logger.info(`Put request to ${url} return error ${resp.statusText}`);
 				throw {
 					reason: resp.statusText,
 				};

@@ -7,6 +7,7 @@ import CreateParams from '../interfaces/CreateParams';
 import DeleteParams from '../interfaces/DeleteParams';
 import GetParams from '../interfaces/GetParams';
 import PageResponse from '../interfaces/PageResponse';
+import RestoreParams from '../interfaces/RestoreParams';
 import UpdateParams from '../interfaces/UpdateParams';
 import { logger } from '../logger';
 
@@ -62,6 +63,9 @@ export default class ConsumptionController {
 					},
 					skip: offset,
 					take: size,
+					where: request.query.eventId ? {
+						eventId: request.query.eventId,
+					} : undefined,
 				});
 				const pageResponse: PageResponse<Consumption> = {
 					items,
@@ -147,6 +151,34 @@ export default class ConsumptionController {
 
 			response.status(500).json({
 				reason: error,
+			});
+		}
+	}
+
+	@validate
+	public static async restore(request: BaseRequest<RestoreParams>, response: Response) {
+		const body = request.body;
+		logger.info('Restoring entity: ', body);
+
+		try {
+			const repository = getRepository(Consumption);
+			await repository.save({
+				consumerId: body.consumerId,
+				cost: body.cost,
+				dateCreated: new Date(body.dateCreated),
+				description: body.description,
+				eventId: body.eventId,
+				id: body.id,
+			});
+
+			logger.info('Successfully restored entity');
+
+			response.status(200).json({});
+		} catch (e) {
+			logger.info('Unable to restore entity: ', e);
+
+			response.status(500).json({
+				reason: e,
 			});
 		}
 	}

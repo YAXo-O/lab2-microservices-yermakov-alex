@@ -5,8 +5,10 @@ import CreateParams from '../interfaces/SessionParams/CreateParams';
 import DeleteParams from '../interfaces/SessionParams/DeleteParams';
 import GetParams from '../interfaces/SessionParams/GetParams';
 import UpdateParams from '../interfaces/SessionParams/UpdateParams';
+import { logger } from '../logger';
 import ConsumerService from '../services/ConsumerService';
 import EventService from '../services/EventService';
+import QueueService from '../services/QueueService';
 import SessionService from '../services/SessionService';
 
 export default class SessionController {
@@ -33,8 +35,19 @@ export default class SessionController {
 				const result = await SessionService.GetSession(query.id);
 				if (result !== null) {
 					const session = result as {id: string};
-					const events = await EventService.GetEventForSession(session.id);
-					const consumers = await ConsumerService.GetConsumerForSession(session.id);
+					let events = null;
+					try {
+						events = await EventService.GetEventForSession(session.id);
+					} catch (e) {
+						logger.info('Error occurred while fetching events: ', e);
+					}
+
+					let consumers = null;
+					try {
+						consumers = await ConsumerService.GetConsumerForSession(session.id);
+					} catch (e) {
+						logger.info('Error occurred while fetching consumers: ', e);
+					}
 
 					response.status(200).json({
 						consumers,
@@ -75,12 +88,48 @@ export default class SessionController {
 		const query = request.query;
 
 		try {
-			await SessionService.DeleteSession(query.id);
-			await EventService.DeleteEventBySession(query.id);
-			await ConsumerService.DeleteConsumerBySession(query.id);
+			try {
+				await SessionService.DeleteSession(query.id);
+			} catch (e) {
+				if (e.unreachable) {
+					logger.info('Session service is unavailable. Queuing');
+					await QueueService.Enqueue('localhost:8000', '/api/private/v1/session', {
+						id: query.id,
+					});
+				} else {
+					throw e;
+				}
+			}
+			try {
+				await EventService.DeleteEventBySession(query.id);
+			} catch (e) {
+				if (e.unreachable) {
+					logger.info('Event service is unavailable. Queuing');
+					await QueueService.Enqueue('localhost:8002', '/api/private/v1/event', {
+						bySession: true,
+						id: query.id,
+					});
+				} else {
+					throw e;
+				}
+			}
+			try {
+				await ConsumerService.DeleteConsumerBySession(query.id);
+			} catch (e) {
+				if (e.unreachable) {
+					logger.info('Consumer service is unavailable. Queuing');
+					await QueueService.Enqueue('localhost:8001', '/api/private/v1/consumer', {
+						bySession: true,
+						id: query.id,
+					});
+				} else {
+					throw e;
+				}
+			}
 
 			response.status(200).send();
 		} catch (e) {
+			logger.info('Caught an error during delete: ', e);
 			response.status(500).json(e);
 		}
 	}

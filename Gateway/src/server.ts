@@ -55,6 +55,14 @@ export default class Server {
 
 	private applyMiddleware() {
 		this.app.use(bodyParser.json());
+		this.app.use((req, res, next) => {
+			res.header('Access-Control-Allow-Origin', 'http://localhost:8082');
+			res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,PATCH,DELETE');
+			res.header('Access-Control-Allow-Headers', 'Content-Type');
+			res.header('Access-Control-Allow-Credentials', 'true');
+
+			next();
+		});
 	}
 
 	private applyRoutes() {

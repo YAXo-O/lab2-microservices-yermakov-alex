@@ -53,5 +53,17 @@ router.patch('/', Validation.update(), Controller.update);
  * @return {object} 500 - Internal server error (detailed description is returned as json)
  */
 router.delete('/', Validation.delete(), Controller.delete);
+/**
+ * Restore specified consumption
+ * @route PUT /
+ * @group Consumption - consumption CRUD operations
+ * @produces application/json
+ * @consumes application/json
+ * @param {RestoreParams| request.body - Params of consumption to restore
+ * @return {object} 200 - Consumption has been successfully restored
+ * @return {object} 400 - Invalid data passed (detailed description is return as json)
+ * @return {object} 500 - Internal server error (detailed description is return as json)
+ */
+router.put('/', Validation.restore(), Controller.restore);
 
 export default router;

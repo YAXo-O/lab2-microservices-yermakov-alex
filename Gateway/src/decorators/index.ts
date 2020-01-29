@@ -1,6 +1,8 @@
 import { Response } from 'express';
 import { Request } from 'express-serve-static-core';
 import { validationResult } from 'express-validator';
+import { Options } from 'opossum';
+import CircuitBreaker = require('opossum');
 import { logger } from '../logger';
 
 export function validate(target: any, propKey: string, descriptor: PropertyDescriptor) {
@@ -17,5 +19,18 @@ export function validate(target: any, propKey: string, descriptor: PropertyDescr
 
 			response.status(400).json({error: errors});
 		}
+	};
+}
+
+export function withCircuitBreaker(options: Options) {
+	return (target: any, propKey: string, descriptor: PropertyDescriptor) => {
+		logger.info('Swizzling with circuit breaker');
+		const originalMethod = descriptor.value.bind(target);
+		const breaker = new CircuitBreaker(originalMethod, options);
+		breaker.fallback(() => Promise.reject({
+			reason: `${propKey} is currently unavailable`,
+			unreachable: true,
+		}));
+		descriptor.value = (...args: any[]) => breaker.fire(...args);
 	};
 }

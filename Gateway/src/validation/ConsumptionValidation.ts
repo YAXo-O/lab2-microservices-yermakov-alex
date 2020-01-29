@@ -14,6 +14,7 @@ export default class ConsumerValidation {
 		return [
 			query('id', 'Id should be a uuid v4 string').optional().isUUID(4),
 			query('page', 'Page should be an integer').optional().isInt(),
+			body('eventId', 'Event id should be a uuid v4 string').optional().isUUID(4),
 		];
 	}
 

@@ -5,8 +5,11 @@ import CreateParams from '../interfaces/EventParams/CreateParams';
 import DeleteParams from '../interfaces/EventParams/DeleteParams';
 import GetParams from '../interfaces/EventParams/GetParams';
 import UpdateParams from '../interfaces/EventParams/UpdateParams';
+import { logger } from '../logger';
+import ConsumerService from '../services/ConsumerService';
 import ConsumptionService from '../services/ConsumptionService';
 import EventService from '../services/EventService';
+import QueueService from '../services/QueueService';
 
 export default class SessionController {
 	@validate
@@ -14,7 +17,7 @@ export default class SessionController {
 		const body = request.body;
 
 		try {
-			const event = await EventService.CreateEvent(body.investorId, body.sessionId);
+			const event = await EventService.CreateEvent(body.title, body.investorId, body.sessionId);
 
 			response.status(201).json(event);
 		} catch (e) {
@@ -27,7 +30,11 @@ export default class SessionController {
 		const query = request.query;
 
 		try {
-			const result = await EventService.GetEvent(query.id, query.page);
+			const result = await EventService.GetEvent(query.id, query.page, query.sessionId);
+			if (query.id) {
+				const res = result as any;
+				res.consumptions = await ConsumptionService.GetConsumptions(query.id);
+			}
 
 			response.status(200).json(result);
 		} catch (e) {
@@ -40,7 +47,7 @@ export default class SessionController {
 		const body = request.body;
 
 		try {
-			await EventService.UpdateEvent(body.id, body.investorId, body.sessionId);
+			await EventService.UpdateEvent(body.id, body.title, body.investorId, body.sessionId);
 
 			response.status(200).send();
 		} catch (e) {
@@ -53,8 +60,26 @@ export default class SessionController {
 		const query = request.query;
 
 		try {
-			await EventService.DeleteEvent(query.id);
-			await ConsumptionService.DeleteConsumptionByEvent(query.id);
+			const event: any = await EventService.GetEvent(query.id);
+
+			try {
+				await EventService.DeleteEvent(query.id);
+			} catch (e) {
+				if (e.unreachable) {
+					logger.info('Event service is unavailable. Rolling back');
+				}
+				throw e;
+			}
+			try {
+				await ConsumptionService.DeleteConsumptionByEvent(query.id);
+			} catch (e) {
+				if (e.unreachable) {
+					logger.info('Consumption service is unavailable. Rolling back');
+					await EventService.RestoreEvent(event.id, event.sessionId, event.investorId, new Date(event.dateCreated));
+
+					throw e;
+				}
+			}
 
 			response.status(200).send();
 		} catch (e) {
