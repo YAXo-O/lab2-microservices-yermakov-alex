@@ -12,6 +12,7 @@ import LoginParams from '../interfaces/LoginParams';
 import RefreshParams from '../interfaces/RefreshParams';
 import TokenParams from '../interfaces/TokenParams';
 import { logger } from '../logger';
+import PrivateTokenService from '../services/PrivateTokenService';
 import UserService from '../services/UserService';
 
 export default class AuthController {
@@ -30,11 +31,20 @@ export default class AuthController {
 
 			response.status(201).send();
 		} catch (error) {
-			logger.info('Unable to create new user: ', error);
+			logger.info('Error: ', error);
 
-			response.status(500).json({
-				reason: error,
-			});
+			if (error.code && error.code === 303) {
+				logger.info('Token is rotten or absent. Redirecting to get new token.');
+				try {
+					PrivateTokenService.userToken = (await UserService.GetToken() as {token: string}).token;
+					logger.info('Logger\'s been retrieved. Refetching.');
+					await AuthController.register(request, response);
+				} catch (tokenError) {
+					response.status(500).json(tokenError);
+				}
+			} else {
+				response.status(500).json(error);
+			}
 		}
 	}
 
@@ -66,9 +76,18 @@ export default class AuthController {
 		} catch (error) {
 			logger.info(`Unable to get code for user ${login}: `, error);
 
-			response.status(500).json({
-				reason: error,
-			});
+			if (error.code && error.code === 303) {
+				logger.info('Token is rotten or absent. Redirecting to get new token.');
+				try {
+					PrivateTokenService.userToken = (await UserService.GetToken() as {token: string}).token;
+					logger.info('Logger\'s been retrieved. Refetching.');
+					await AuthController.getCode(request, response);
+				} catch (tokenError) {
+					response.status(500).json(tokenError);
+				}
+			} else {
+				response.status(500).json(error);
+			}
 		}
 	}
 
@@ -114,7 +133,16 @@ export default class AuthController {
 		} catch (error) {
 			logger.info('An error occurred while trying to get token: ', error);
 
-			if (error.code && error.code === '23505') {
+			if (error.code && error.code === 303) {
+				logger.info('Token is rotten or absent. Redirecting to get new token.');
+				try {
+					PrivateTokenService.userToken = (await UserService.GetToken() as {token: string}).token;
+					logger.info('Logger\'s been retrieved. Refetching.');
+					await AuthController.getToken(request, response);
+				} catch (tokenError) {
+					response.status(500).json(tokenError);
+				}
+			} else if (error.code && error.code === '23505') {
 				response.status(406).json({
 					reason: 'Access code has already been used',
 				});
@@ -219,7 +247,16 @@ export default class AuthController {
 		} catch (error) {
 			logger.info('Error while refreshing token: ', error);
 
-			if (error.name && error.name === 'TokenExpiredError') {
+			if (error.code && error.code === 303) {
+				logger.info('Token is rotten or absent. Redirecting to get new token.');
+				try {
+					PrivateTokenService.userToken = (await UserService.GetToken() as { token: string }).token;
+					logger.info('Logger\'s been retrieved. Refetching.');
+					await AuthController.refreshToken(request, response);
+				} catch (tokenError) {
+					response.status(500).json(tokenError);
+				}
+			} else if (error.name && error.name === 'TokenExpiredError') {
 				response.status(406).json({
 					reason: 'Refresh token has expired',
 				});

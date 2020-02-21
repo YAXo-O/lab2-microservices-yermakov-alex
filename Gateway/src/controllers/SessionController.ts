@@ -15,6 +15,12 @@ import SessionService from '../services/SessionService';
 export default class SessionController {
 	@validate
 	public static async create(request: BaseRequest<CreateParams>, response: Response) {
+		const token = request.header('Authorization').replace('Bearer ', '');
+		const refresh = request.header('Authorization-Refresh').replace('Bearer', '');
+
+		response.setHeader('Authorization', 'token');
+		response.setHeader('Authorization-refresh', 'refreshToken');
+
 		const adminId = 'e9b8a54e-1f17-4947-b95c-2187790dbc92'; // TODO: fetch admin id from current user
 		const body = request.body;
 
