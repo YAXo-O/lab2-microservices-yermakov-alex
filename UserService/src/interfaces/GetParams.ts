@@ -4,6 +4,7 @@
  * @property {string} [id] - Id (uuid v4 string) of exact user to retrieve
  */
 export default interface GetParams {
-	page?: number;
 	id?: string;
+	login?: string;
+	page?: number;
 }

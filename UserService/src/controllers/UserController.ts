@@ -1,6 +1,7 @@
-import { validate } from '@decorators/index';
 import {Response} from 'express';
 import {getRepository} from 'typeorm';
+
+import { validate } from '@decorators/index';
 import {User} from '../entity/User';
 import BaseRequest from '../interfaces/BaseRequest';
 import CreateParams from '../interfaces/CreateParams';
@@ -47,6 +48,12 @@ export default class UserController {
 				const item = await repository.findOne(request.query.id);
 
 				logger.info('Retrieved user by id: ', item);
+
+				response.status(200).json(item || {});
+			} else if (request.query.login) {
+				const item = await repository.findOne({login: request.query.login});
+
+				logger.info('Retrieved user by login: ', item);
 
 				response.status(200).json(item || {});
 			} else {

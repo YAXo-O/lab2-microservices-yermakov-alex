@@ -1,21 +1,23 @@
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
-export class User {
+export class AuthSession {
 	@PrimaryGeneratedColumn('uuid')
 	public id: string;
 
+	@Column()
+	public token: string;
+
+	@Column()
+	public refreshToken: string;
+
 	@Column({
-		type: 'text',
 		unique: true,
 	})
-	public login: string;
-
-	@Column('text')
-	public hash: string;
+	public accessCode: string;
 
 	@CreateDateColumn({
 		type: 'timestamp',
 	})
-	public dateCreated: Date;
+	public lastActionTime: Date;
 }
