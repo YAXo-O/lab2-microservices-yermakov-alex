@@ -34,4 +34,11 @@ export default class SessionValidation {
 			query('id', 'Session id is required and should be uuid v4 string').exists().isUUID(4),
 		];
 	}
+
+	public static token() {
+		return [
+			query('appId', 'AppId is a required string').exists().isString(),
+			query('appSecret', 'AppSecret is a required string').exists().isString(),
+		];
+	}
 }

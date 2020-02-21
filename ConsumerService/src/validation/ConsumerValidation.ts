@@ -32,4 +32,11 @@ export default class ConsumerValidation {
 			query('bySession', 'By session should be boolean').optional().isBoolean(),
 		];
 	}
+
+	public static token() {
+		return [
+			query('appId', 'AppId is a required string').exists().isString(),
+			query('appSecret', 'AppSecret is a required string').exists().isString(),
+		];
+	}
 }

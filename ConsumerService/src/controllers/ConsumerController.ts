@@ -1,16 +1,21 @@
-import { validate } from '@decorators/index';
+import { enclosed, validate } from '@decorators/index';
 import {Response} from 'express';
 import {getRepository} from 'typeorm';
+
+import TokenManager from '../TokenManager';
+
 import {Consumer} from '../entity/Consumer';
 import BaseRequest from '../interfaces/BaseRequest';
 import CreateParams from '../interfaces/CreateParams';
 import DeleteParams from '../interfaces/DeleteParams';
 import GetParams from '../interfaces/GetParams';
 import PageResponse from '../interfaces/PageResponse';
+import TokenParams from '../interfaces/TokenParams';
 import UpdateParams from '../interfaces/UpdateParams';
 import { logger } from '../logger';
 
 export default class ConsumerController {
+	@enclosed
 	@validate
 	public static async create(request: BaseRequest<CreateParams>, response: Response) {
 		const body = request.body;
@@ -38,6 +43,7 @@ export default class ConsumerController {
 		}
 	}
 
+	@enclosed
 	@validate
 	public static async get(request: BaseRequest<{}, GetParams>, response: Response) {
 		logger.info('Retrieving consumer(s)');
@@ -86,6 +92,7 @@ export default class ConsumerController {
 		}
 	}
 
+	@enclosed
 	@validate
 	public static async update(request: BaseRequest<UpdateParams>, response: Response) {
 		const params = request.body;
@@ -127,6 +134,7 @@ export default class ConsumerController {
 		}
 	}
 
+	@enclosed
 	@validate
 	public static async delete(request: BaseRequest<{}, DeleteParams>, response: Response) {
 		const id = request.query.id;
@@ -149,4 +157,26 @@ export default class ConsumerController {
 			});
 		}
 	}
+
+	@enclosed
+	@validate
+	public static async token(request: BaseRequest<{}, TokenParams>, response: Response) {
+		logger.info('Requesting token');
+		const {appId, appSecret} = request.query;
+		logger.info(`Credentials: ${appId}, ${appSecret}`);
+		if (appId === ConsumerController.appId && appSecret === ConsumerController.appSecret) {
+			logger.info('New token has been dispatched');
+			response.status(200).json({
+				token: TokenManager.createToken(),
+			});
+		} else {
+			logger.info('Incorrect credentials were provided. No token was dispatched.');
+			response.status(400).json({
+				reason: 'Incorrect credentials',
+			});
+		}
+	}
+
+	private static appId: string = process.env.APPLICATION_ID || 'consumer_service_id';
+	private static appSecret: string = process.env.APPLICATION_SECRET || 'consumer_service_secret';
 }

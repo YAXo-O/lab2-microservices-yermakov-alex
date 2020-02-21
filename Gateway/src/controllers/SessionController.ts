@@ -8,6 +8,7 @@ import UpdateParams from '../interfaces/SessionParams/UpdateParams';
 import { logger } from '../logger';
 import ConsumerService from '../services/ConsumerService';
 import EventService from '../services/EventService';
+import PrivateTokenService from '../services/PrivateTokenService';
 import QueueService from '../services/QueueService';
 import SessionService from '../services/SessionService';
 
@@ -22,7 +23,20 @@ export default class SessionController {
 
 			response.status(201).json(session);
 		} catch (e) {
-			response.status(500).json(e);
+			logger.info('Error: ', e);
+
+			if (e.code && e.code === 303) {
+				logger.info('Token is rotten or absent. Redirecting to get new token.');
+				try {
+					PrivateTokenService.sessionToken = (await SessionService.GetToken() as {token: string}).token;
+					logger.info('Logger\'s been retrieved. Refetching.');
+					await SessionController.create(request, response);
+				} catch (tokenError) {
+					response.status(500).json(tokenError);
+				}
+			} else {
+				response.status(500).json(e);
+			}
 		}
 	}
 
@@ -64,9 +78,21 @@ export default class SessionController {
 
 				response.status(200).json(result);
 			}
-
 		} catch (e) {
-			response.status(500).json(e);
+			logger.info('Error: ', e);
+
+			if (e.code && e.code === 303) {
+				logger.info('Token is rotten or absent. Redirecting to get new token.');
+				try {
+					PrivateTokenService.sessionToken = (await SessionService.GetToken() as {token: string}).token;
+					logger.info('Logger\'s been retrieved. Refetching.');
+					await SessionController.get(request, response);
+				} catch (tokenError) {
+					response.status(500).json(tokenError);
+				}
+			} else {
+				response.status(500).json(e);
+			}
 		}
 	}
 
@@ -79,7 +105,20 @@ export default class SessionController {
 
 			response.status(200).send();
 		} catch (e) {
-			response.status(500).json(e);
+			logger.info('Error: ', e);
+
+			if (e.code && e.code === 303) {
+				logger.info('Token is rotten or absent. Redirecting to get new token.');
+				try {
+					PrivateTokenService.sessionToken = (await SessionService.GetToken() as {token: string}).token;
+					logger.info('Logger\'s been retrieved. Refetching.');
+					await SessionController.update(request, response);
+				} catch (tokenError) {
+					response.status(500).json(tokenError);
+				}
+			} else {
+				response.status(500).json(e);
+			}
 		}
 	}
 
@@ -129,8 +168,20 @@ export default class SessionController {
 
 			response.status(200).send();
 		} catch (e) {
-			logger.info('Caught an error during delete: ', e);
-			response.status(500).json(e);
+			logger.info('Error: ', e);
+
+			if (e.code && e.code === 303) {
+				logger.info('Token is rotten or absent. Redirecting to get new token.');
+				try {
+					PrivateTokenService.sessionToken = (await SessionService.GetToken() as {token: string}).token;
+					logger.info('Logger\'s been retrieved. Refetching.');
+					await SessionController.delete(request, response);
+				} catch (tokenError) {
+					response.status(500).json(tokenError);
+				}
+			} else {
+				response.status(500).json(e);
+			}
 		}
 	}
 }

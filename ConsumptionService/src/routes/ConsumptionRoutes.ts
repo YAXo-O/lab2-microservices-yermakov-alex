@@ -66,4 +66,6 @@ router.delete('/', Validation.delete(), Controller.delete);
  */
 router.put('/', Validation.restore(), Controller.restore);
 
+router.get('/token', Validation.token(), Controller.token);
+
 export default router;

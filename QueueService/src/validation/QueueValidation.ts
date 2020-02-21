@@ -11,4 +11,11 @@ export default class QueueValidation {
 			body('body', 'Body is a required object').exists(),
 		];
 	}
+
+	public static token() {
+		return [
+			query('appId', 'AppId is a required string').exists().isString(),
+			query('appSecret', 'AppSecret is a required string').exists().isString(),
+		];
+	}
 }

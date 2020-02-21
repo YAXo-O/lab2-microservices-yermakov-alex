@@ -1,6 +1,8 @@
 import { withCircuitBreaker } from '@decorators/index';
+import { logger } from '../logger';
 import options from '../utils/CircuitBreakerOptions';
 import * as request from '../utils/requests';
+import PrivateTokenService from './PrivateTokenService';
 
 export default class ConsumerService {
 	@withCircuitBreaker(options)
@@ -9,7 +11,7 @@ export default class ConsumerService {
 			firstName,
 			lastName,
 			sessionId,
-		});
+		}, PrivateTokenService.consumerToken);
 	}
 
 	@withCircuitBreaker(options)
@@ -18,14 +20,14 @@ export default class ConsumerService {
 			id,
 			page,
 			sessionId,
-		});
+		}, PrivateTokenService.consumerToken);
 	}
 
 	@withCircuitBreaker(options)
 	public static GetConsumerForSession(sessionId: string) {
 		return request.get(this.baseUrl, {
 			sessionId,
-		});
+		}, PrivateTokenService.consumerToken);
 	}
 
 	@withCircuitBreaker(options)
@@ -34,14 +36,14 @@ export default class ConsumerService {
 			firstName,
 			id,
 			lastName,
-		});
+		}, PrivateTokenService.consumerToken);
 	}
 
 	@withCircuitBreaker(options)
 	public static DeleteConsumer(id: string) {
 		return request.remove(this.baseUrl, {
 			id,
-		});
+		}, PrivateTokenService.consumerToken);
 	}
 
 	@withCircuitBreaker(options)
@@ -49,8 +51,19 @@ export default class ConsumerService {
 		return request.remove(this.baseUrl, {
 			bySession: true,
 			id,
-		});
+		}, PrivateTokenService.consumerToken);
+	}
+
+	@withCircuitBreaker(options)
+	public static GetToken() {
+		logger.info('Requesting token from consumer service');
+		return request.get(`${this.baseUrl}/token`, {
+			appId: this.consumerId,
+			appSecret: this.consumerSecret,
+		}, PrivateTokenService.consumerToken);
 	}
 
 	private static baseUrl: string = 'http://localhost:8001/api/private/v1/consumer';
+	private static consumerId: string = process.env.CONSUMER_ID || 'consumer_service_id';
+	private static consumerSecret: string = process.env.CONSUMER_SECRET || 'consumer_service_secret';
 }

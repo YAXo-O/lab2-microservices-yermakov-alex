@@ -45,4 +45,11 @@ export default class ConsumptionValidation {
 			body('dateCreated', 'Date created is a required numeric').exists().isNumeric(),
 		];
 	}
+
+	public static token() {
+		return [
+			query('appId', 'AppId is a required string').exists().isString(),
+			query('appSecret', 'AppSecret is a required string').exists().isString(),
+		];
+	}
 }

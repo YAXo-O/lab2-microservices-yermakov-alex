@@ -4,8 +4,10 @@ import fetch from 'node-fetch';
 import BaseRequest from '../interfaces/BaseRequest';
 import DequeueParams from '../interfaces/DequeueParams';
 import EnqueueParams from '../interfaces/EnqueueParams';
+import TokenParams from '../interfaces/TokenParams';
 import { logger } from '../logger';
 import Queue from '../queue/Queue';
+import TokenManager from '../TokenManager';
 
 function formatURL(base: string, query: object): string {
 	const keys = Object.keys(query).filter(k => query[k] !== undefined);
@@ -70,4 +72,25 @@ export default class QueueController {
 			}
 		}
 	}
+
+	@validate
+	public static async token(request: BaseRequest<{}, TokenParams>, response: Response) {
+		logger.info('Requesting token');
+		const {appId, appSecret} = request.query;
+		logger.info(`Credentials: ${appId}, ${appSecret}`);
+		if (appId === QueueController.appId && appSecret === QueueController.appSecret) {
+			logger.info('New token has been dispatched');
+			response.status(200).json({
+				token: TokenManager.createToken(),
+			});
+		} else {
+			logger.info('Incorrect credentials were provided. No token was dispatched.');
+			response.status(400).json({
+				reason: 'Incorrect credentials',
+			});
+		}
+	}
+
+	private static appId: string = process.env.APPLICATION_ID || 'queue_service_id';
+	private static appSecret: string = process.env.APPLICATION_SECRET || 'queue_service_secret';
 }

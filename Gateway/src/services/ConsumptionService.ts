@@ -1,6 +1,8 @@
 import { withCircuitBreaker } from '@decorators/index';
+import { logger } from '../logger';
 import options from '../utils/CircuitBreakerOptions';
 import * as request from '../utils/requests';
+import PrivateTokenService from './PrivateTokenService';
 
 export default class ConsumptionService {
 	@withCircuitBreaker(options)
@@ -10,7 +12,7 @@ export default class ConsumptionService {
 			cost,
 			description,
 			eventId,
-		});
+		}, PrivateTokenService.consumptionToken);
 	}
 
 	@withCircuitBreaker(options)
@@ -19,14 +21,14 @@ export default class ConsumptionService {
 			eventId,
 			id,
 			page,
-		});
+		}, PrivateTokenService.consumptionToken);
 	}
 
 	@withCircuitBreaker(options)
 	public static GetConsumptions(eventId: string) {
 		return request.get(this.baseUrl, {
 			eventId,
-		});
+		}, PrivateTokenService.consumptionToken);
 	}
 
 	@withCircuitBreaker(options)
@@ -38,14 +40,14 @@ export default class ConsumptionService {
 			description,
 			eventId,
 			id,
-		});
+		}, PrivateTokenService.consumptionToken);
 	}
 
 	@withCircuitBreaker(options)
 	public static DeleteConsumption(id: string) {
 		return request.remove(this.baseUrl, {
 			id,
-		});
+		}, PrivateTokenService.consumptionToken);
 	}
 
 	@withCircuitBreaker(options)
@@ -53,8 +55,19 @@ export default class ConsumptionService {
 		return request.remove(this.baseUrl, {
 			byEvent: true,
 			id,
-		});
+		}, PrivateTokenService.consumptionToken);
+	}
+
+	@withCircuitBreaker(options)
+	public static GetToken() {
+		logger.info('Requesting token from session service');
+		return request.get(`${this.baseUrl}/token`, {
+			appId: this.consumptionId,
+			appSecret: this.consumptionSecret,
+		}, PrivateTokenService.consumptionToken);
 	}
 
 	private static baseUrl: string = 'http://localhost:8003/api/private/v1/consumption';
+	private static consumptionId: string = process.env.CONSUMPTION_ID || 'consumption_service_id';
+	private static consumptionSecret: string = process.env.CONSUMPTION_SECRET || 'consumption_service_secret';
 }

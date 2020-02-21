@@ -42,4 +42,11 @@ export default class EventValidation {
 			body('dateCreated', 'Date created should be number representing date in milis').exists().isNumeric()
 		];
 	}
+
+	public static token() {
+		return [
+			query('appId', 'AppId is a required string').exists().isString(),
+			query('appSecret', 'AppSecret is a required string').exists().isString(),
+		];
+	}
 }
