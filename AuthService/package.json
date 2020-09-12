@@ -21,7 +21,7 @@
       "body-parser": "^1.18.1",
       "express": "^4.15.4",
       "jsonwebtoken": "^8.5.1",
-      "node-fetch": "^2.6.0",
+      "node-fetch": "^2.6.1",
       "pg": "^7.3.0",
       "reflect-metadata": "^0.1.10",
       "ts-node": "^3.3.0",
