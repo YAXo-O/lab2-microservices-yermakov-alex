@@ -20,7 +20,7 @@
       "body-parser": "^1.18.1",
       "crypto": "^1.0.1",
       "express": "^4.15.4",
-      "node-fetch": "^2.6.0",
+      "node-fetch": "^2.6.1",
       "opossum": "^4.2.3",
       "reflect-metadata": "^0.1.10",
       "ts-node": "^3.3.0",
